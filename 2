@@ -1,0 +1,712 @@
+import codecs
+import math
+import os
+i=0
+f=[]
+list1=[]
+line=[]
+l=0
+w=0
+k=0
+j=0
+x=[]
+y=[]
+point=[]
+a=[]
+c=299792458#light speed
+
+########################################################################################
+n=3
+name= r'C:\Users\XZ\Desktop\0.5phonon\4\bn.'#path for frequency file suffix with .0 .1 such as the path "C:\Users\AB.0"
+change=0.005#degree of biaxial strains when calculate Gruneissen parameter, such as 0.5% biaxial strains import 0.005
+v=21.766160669567377#unit cell volume
+atom=8#Number of atoms in unit cell volume
+tem=300#temperature with unit K
+lattic=5.016681385#lattice constant
+zhi=(12.0098385,12.1343845,12.2589305,12.3834765,12.5080225)#average Relative atomic mass for atom AB change with isotope rate
+zhiliang=zhi[4]#12.0098385,12.1343845,12.2589305,12.3834765,12.5080225
+liang=14.00674#Relative atomic massfor atom B
+rate=zhi.index(zhiliang)/4#isotope rate
+g2=(1-rate)*(1-11.009305/(10.012937*rate+(1-rate)*11.009305))**2+rate*(1-10.012937/(10.012937*rate+(1-rate)*11.009305))**2#g2
+#g2=((zhiliang/(14.00674+zhiliang))**2*g2+(14.00674/(14.00674+zhiliang))**2*0)*2
+#if rate ==0 or rate ==1:
+  #  g2=0
+gap=0.02
+high=25
+high=float(high)
+'''print('Name the phonon output file from 0 before use******* for instance AB.n，n=0,1,2,3......')
+name=str(input(r'Path of file（Remove the following numbers of files）'+'\n'))
+lattic=input(r'lattice constant with A'+'\n'
+'''#input notes if need delete  the '''
+na=6.02214076*1e23
+hb=1.0545726663e-34
+kb=1.380649e-23
+v=float(v)
+v=v*1e-20#unit conversion m^3
+n=int(n)
+lattic=float(lattic)
+change=float(change)
+zhiliang=float(zhiliang)
+zhiliang=float(zhiliang/(na*1000))#unit conversion
+atom=float(atom)
+tem=float(tem)
+lattic=1e-10*lattic#\AA to m
+G=21.766160669567377*25*10**-30/(12*math.pi)*g2#21.766160669567377*10**-20/(8)*g2#3D 21.766160669567377*25*10**-30/(12*math.pi)*g2#3D  (21.766160669567377*25*10**-30*KB**4*g2*tem**4)/(4*math.pi*HB**4)
+path=name
+path=name.split('\\')
+path.pop()
+path='\\'.join(path)+'\\'+'outdir'
+if not os.path.exists(path):
+    os.mkdir(path)
+
+
+#####################################测试用赋值###############################################
+f0 = codecs.open('{}' '{}'.format(name,i), mode='r', encoding='utf-8')  # Open the file and read it in 'UTF-8' encoding
+line0 = f0.readline()   # read file
+list0 = []
+f1 = codecs.open('{}' '{}'.format(name,i), mode='r', encoding='utf-8')  # Open the file and read it in 'UTF-8' encoding
+a0 = line0.split()
+wide=len(a0)
+while line0:
+    a0 = line0.split()
+    b0 = a0[0]   
+    list0.append(b0)  
+    line0 = f0.readline()
+
+
+long=len(list0)
+path=name
+path=name.split('\\')
+path.pop()
+path='\\'.join(path)+'\\'+'outdir'
+if not os.path.exists(path):
+    os.mkdir(path)
+
+
+####################################Length and width detection of input file#################################################################
+while j <wide:
+    a.append('')
+    j=j+1
+
+
+i=-1
+j=-1
+k=-1
+while i < n-1:
+    i=i+1
+    f=(codecs.open('{}' '{}'.format(name,i), mode='r', encoding='utf-8'))
+    while j < wide-1:
+        j=j+1
+        line=f1.readline() 
+        f=(codecs.open('{}' '{}'.format(name,i), mode='r', encoding='utf-8'))
+        while k<long-1:
+            k=k+1
+            line=f.readline() 
+            a = line.split()
+            gd=a[j]
+            gd=float(gd)
+            point.append(gd)
+        k=-1
+        y.append(point)
+        point=[]
+    f.close()
+    j=-1
+    f=0
+
+
+
+f1.close()
+f0.close()
+###########################################################File data is read and stored in y[]######################################
+
+gd=[]
+qunv=[]
+answer=0
+z=1
+x=1
+vb=0
+while x <=n:
+    while z < wide*x:
+        while vb<long-1:
+            jindu=0
+            chusu=(y[z][vb+1]-y[z][vb])
+            fenmu=(y[0][vb+1]-y[0][vb])/lattic
+            answer=chusu/fenmu
+            gd.append(answer)
+            vb=vb+1
+            answer=0
+        qunv.append(gd)
+        vb=0
+        z=z+1
+        gd=[]
+    z=z+1
+    x=x+1
+
+
+###############################################Calculate group velocity qunv(m/s)###################################################
+
+
+gd=[]
+tidu=[]
+answer=0
+j=0
+i=0
+while j < len(qunv):
+    while i<len(qunv[0])-1:
+        if qunv[j][i]!=0:
+            answer=abs((qunv[j][i+1]-qunv[j][i])/qunv[j][i])
+        else:
+            answer=abs((qunv[j][i+1]-qunv[j][i])/qunv[j][i+1])
+        gd.append(answer)
+        i=i+1
+        answer=0
+    tidu.append(gd)
+    i=0
+    j=j+1
+    gd=[]
+
+
+
+###############################################Calculated gradient###################################################
+i=0
+j=0
+k=0
+while k <n:
+    f=open(path+'\\'+'tidu'+str(k)+'.out','w')
+    j=0 
+    while j < len(tidu[0]):
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=0
+        while i<len(tidu)/n:
+            a=tidu[int(len(tidu)/n*k+i)][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+        j=j+1
+    k=k+1
+    f.close()
+
+
+##########################################output gradient###############################################
+'''
+i=0
+j=0
+k=0
+a=0
+nn=0
+nm=0
+while i <len(qunv)-1:
+    a=int((i+1)/(len(qunv)/n))+1
+    while j<len(qunv[0])-1:         
+        if abs((qunv[i][j]-qunv[i][j+1])/(qunv[i][j]+10**-200)) >0.1 and j<len(qunv[0])-3 and j>5:
+            cs=j+2
+            nn=nn+1
+            k=int((a-1)*len(qunv)/n)
+            if nn>=20:
+                break
+            lie = i
+            while k <a*len(qunv)/n:
+                if abs(((y[i+a][j-1]-y[i+a][j+1])-(y[i+a][j]-y[k+a][j+2]))/(y[i+a][j]-y[i+a][j+1]+10**-200))<0.1 and abs((y[i+a][j]-y[k+a][j+3])/y[i+a][j+1])<0.1 :#and i<k
+                    lie=int(k)
+                    k=int(k+len(qunv))    
+                    nm=nm+1       
+                k=k+1
+            j=j+2
+            while j<len(qunv[0])-2:
+                if abs((qunv[lie][j]-qunv[lie][j+2])/qunv[lie][j]) >0.1:
+                    ce=j+3
+                    j=j+len(qunv[0])
+                    nm=0
+                elif j >=len(qunv[0])-3:
+                    ce=len(qunv[0])+1
+                    j=j+len(qunv[0])
+                    nm=0
+                j=j+1
+            j=-1
+            gd=[]
+            gd=y[i+a][cs:ce]
+            y[i+a][cs:ce]=y[lie+a][cs:ce]
+            y[lie+a][cs:ce]=gd
+            gd=[]
+            qunv=[]
+            answer=0
+            z=1
+            x=1
+            vb=0
+            while x <=n:
+                while z < wide*x:
+                    while vb<long-1:
+                        jindu=0
+                        chusu=(y[z][vb+1]-y[z][vb])
+                        fenmu=(y[0][vb+1]-y[0][vb])/lattic
+                        answer=chusu/fenmu
+                        gd.append(answer)
+                        vb=vb+1
+                        answer=0
+                    qunv.append(gd)
+                    vb=0
+                    z=z+1
+                    gd=[]
+                z=z+1
+                x=x+1
+        j=j+1
+    i=i+1
+    print(i/(len(qunv)-1))
+    nn=0
+    j=0
+
+'''
+
+
+
+###########################################A bit with the group velocity as the standard exchange phonon frequency if needed delete Note#######################################i=0
+j=-1
+k=0
+while k <n:
+    f=open(path+'\\'+'bn.'+str(k)+'.','w')
+    j=-1  
+    while j < len(y[0])-1:
+        j=j+1
+        i=(wide)*k#
+        while i<(k+1)*(wide):
+            a=y[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+##########################################out put frequency frequency{n}.out#########################
+i=0
+j=-1
+k=0
+while k <n:
+    f=open(path+'\\'+'qunv'+str(k)+'.out','w')
+    j=-1   
+    while j < len(qunv[0])-1:
+        j=j+1
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=(wide-1)*k#
+        while i<(k+1)*(wide-1):
+            a=qunv[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+##########################################group velocity out put qunv{n}.out m/s###############################################
+guodu=[]
+i=0
+j=0
+jian=[]
+j=wide-1
+delta=[]
+gd=0
+while j < len(y)-1:
+    delta.append(jian)
+    j=j+1
+    while i < long: 
+        l=j%wide
+        gd=round(y[l][i]-y[j][i],8) 
+        jian.append(gd)
+        i=i+1
+    i=0
+    jian=[]
+
+
+
+#######################################################
+
+i=0
+j=-1
+k=0
+while k <n-1:
+    f=open(path+'\\'+'delta'+str(k)+'.out','w')
+    j=-1   
+    while j < len(delta[0])-1:
+        j=j+1
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=wide*k#
+        i=i+1
+        while i<(k+1)*wide:
+            a=-delta[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+
+##################################################out put delta omega delta{n}.out cm^-1############################
+i=0
+j=0
+k=0
+while i < len(y):
+    if i%wide==0:
+        i=i+1
+    while j<len(y[0]):
+        if y[i][j]==0:
+            y[i][j]=y[i][j]+0.0000123
+        y[i][j]=y[i][j]*c*100
+        j=j+1
+    i=i+1
+    j=0
+
+
+i=0
+j=0
+while i < len(delta):
+    while j<len(delta[0]):
+        delta[i][j]=delta[i][j]*c*100
+        j=j+1
+    i=i+1
+    j=0
+
+
+####################################Avoid calculating a gamma divisor of 0, And convert all frequency units into s^-1，gammg=0 provide thermal conductivity for 0######################################
+i=0
+ga=[]
+gamma=[]
+j=1
+k=1
+ga=[]
+l=0
+odu=0
+while k<n:
+    j=k*wide-wide+1
+    while j < wide*k:
+        while i<long:
+            l=j%wide
+            fenzi=delta[j][i]
+            fenmu=2*y[l][i]*(change*k)
+            answer=round(fenzi/fenmu,8)
+            ga.append(answer)
+            i=i+1
+        j=j+1
+        i=0
+        gamma.append(ga)
+        ga=[]
+    k=k+1
+
+
+#############################################save gamma################################################
+gammajun=[]
+i=j=0
+k=0
+while i<wide-1:
+    while j <len(gamma[0]):
+        while k <n-1:
+            gd=gamma[i+k*(wide-1)][j]+gd
+            k=k+1
+        guod=gd/(n-1)
+        guodu.append(guod)
+        guod=gd=k=0
+        j=j+1
+    j=0
+    gammajun.append(guodu)
+    guodu=[]
+    i=i+1
+
+
+
+############################################average gamma###################################
+i=0
+j=-1
+k=0
+while k <n-1:
+    f=open(path+'\\'+'gamma'+str(k)+'.out','w')
+    j=-1   
+    while j < len(gamma[0])-1:
+        j=j+1
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=(wide-1)*k#
+        while i<(k+1)*(wide-1):
+            a=gamma[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+###############################################out put gamma gamma{n}.out######################################
+
+gd=[]
+qunv=[]
+answer=0
+z=1
+x=1
+vb=0
+while x <=n:
+    while z < wide*x:
+        while vb<long-1:
+            jindu=0
+            chusu=(y[z][vb+1]-y[z][vb])
+            fenmu=(y[0][vb+1]-y[0][vb])/lattic
+            answer=chusu/fenmu
+            gd.append(answer)
+            vb=vb+1
+            answer=0
+        qunv.append(gd)
+        vb=0
+        z=z+1
+        gd=[]
+    z=z+1
+    x=x+1
+
+
+###############################################recalculatte group velocity qunv m/s###################################################
+i=0
+j=-1
+k=0
+while k <n:
+    f=open(path+'\\'+'qunv'+str(k)+'.out','w')
+    j=-1   
+    while j < len(qunv[0])-1:
+        j=j+1
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=(wide-1)*k#
+        while i<(k+1)*(wide-1):
+            a=qunv[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+########################################## output qunv{n}.out m/s###############################################
+
+
+i=0
+qunvjun=[]####1/qunv**2
+while i<len(qunv[0]):
+    if qunv[1][i]!=0 and qunv[2][i]!=0:
+        gd=(1/qunv[1][i])**2+(1/qunv[2][i])**2#(1/v0^3+1/v1^3+1/v2^3)
+        gd=gd/2
+        gd=math.sqrt(1/gd)
+        qunvjun.append(gd)#1/v
+        i=i+1
+    else:
+        gd=1
+        qunvjun.append(gd)
+        i=i+1
+
+
+#############################################average group velocity m/s###########################################
+debye=[]
+i=0
+j=0
+guod=[]
+while j < len(qunv):
+    while i <len(qunv[0]):
+        gd=2*abs(qunv[j][i])*math.sqrt(math.pi/(v*25*10**-10))
+        guod.append(gd)
+        i=i+1
+    debye.append(guod)
+    guod=[]
+    j=j+1
+    i=0
+
+
+
+
+#############################################Debye frequency s-1#######################################################
+i=0
+j=-1
+k=0
+while k <n:
+    f=open(path+'\\'+'debye'+str(k)+'.out','w')
+    j=-1   
+    while j < len(debye[0])-1:
+        j=j+1
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=(wide-1)*k#
+        while i<(k+1)*(wide-1):
+            a=debye[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+########################################Debye frequency out put to debye.out#################################
+hb=1.0545726663e-34
+kb=1.380649e-23
+i=1
+j=0
+k=0
+rerong=[]
+guodu=[]
+while k <n:
+    i=wide*k+1
+    while i<wide*(k+1):
+        while j <len(y[0]):
+            if y[i][j]==368744.72334:
+                gd=1.3806489999823935e-23
+            else :
+                gd=(kb* (hb*y[i][j]/(kb*tem))**2)*math.exp(hb*y[i][j]/(kb*tem))/((math.exp(hb*y[i][j]/(kb*tem))-1)**2)
+            guodu.append(gd)
+            j=j+1
+        rerong.append(guodu)
+        guodu=[]
+        j=0
+        i=i+1
+    k=k+1
+
+
+
+########################################################Hot melt##################################################
+i=0
+j=-1
+k=0
+while k <n:
+    f=open(path+'\\'+'rerong'+str(k)+'.out','w')
+    j=-1   
+    while j < len(rerong[0])-1:
+        j=j+1
+        f.write(str(y[0][j]))
+        f.write('   ')
+        i=(wide-1)*k#
+        while i<(k+1)*(wide-1):
+            a=rerong[i][j]
+            ga=str(a)
+            f.write(ga)
+            f.write('   ')
+            i=i+1
+        f.write('\n')    
+    k=k+1
+    f.close()
+
+
+#################################################out put Hot melt rerong{}.out#######################
+i=0
+j=0
+guodu=[]
+tao=[]
+taoi=[]
+while i < wide-1:
+    while j<len(qunvjun):
+        fenzi=debye[i][j]*zhiliang*abs(qunvjun[j])**2
+        fenmu=(gammajun[i][j]**2)*(y[i+1][j]**2)*kb*tem
+        if fenmu==0:
+            fenzi = 0    
+        else:
+            gd=fenzi/fenmu
+        if gd==0:
+            gd=10**-50
+        gd=1/gd
+        gd=abs(gd)
+        A=G*(1/qunv[1][j]**3+2/qunv[2][j]**3)
+        A=abs(A)
+        taot=A*y[i][j+1]**4#isotope scattering
+        taoi.append(taot)
+        gd=gd+taot
+        gd=1/gd
+        guodu.append(gd)
+        j=j+1
+    tao.append(guodu)
+    guodu=[]
+    i=i+1
+    j=0
+
+
+
+
+
+
+########################################################phonon life time #########################################
+i=0
+j=0
+f=open(path+'\\'+'tao.out','w')
+while j<len(tao[0]):
+    f.write(str(y[0][j]))
+    f.write('   ')
+    while i<len(tao):
+        a=tao[i][j]
+        ga=str(a)
+        f.write(ga)
+        f.write('   ')
+        i=i+1
+    i=0
+    j=j+1
+    f.write('\n')
+
+f.close()
+##########################################output lifetime################################
+
+'''tao[1][0]=tao[1][1]
+tao[2][0]=tao[2][1]'''
+tao[1][0]=tao[2][0]=tao[0][0]=0
+redao=0
+i=0
+j=0
+ceshi=[]
+guodu=[]
+while i<3:#wide-1:
+    while j <len(qunv[0]):
+        gd=tao[i][j]*rerong[i][j]*(qunv[i][j]**2)*((y[0][i+1]-y[0][i])/lattic)**3/(high)/((2*math.pi)**3)*lattic*10**10
+        if j==len(qunv[0])-1:
+            gd=0
+        guodu.append(gd)
+        if qunv[i][j]>=20000:
+            gd=0
+        if gd >1000:
+            gd=0
+        redao=redao+gd
+        j=j+1
+    ceshi.append(guodu)
+    guodu=[]
+    j=0
+    i=i+1
+
+####################################################Calculated thermal conductivity#####################################
+
+f=open(path+'\\'+'redao.out','w')
+f.write(str(redao)+'\n')
+i=0
+j=0
+while j<len(ceshi[0]):
+    f.write(str(y[0][j]))
+    f.write('   ')
+    while i<len(ceshi):
+        a=ceshi[i][j]
+        ga=str(a)
+        f.write(ga)
+        f.write('   ')
+        i=i+1
+    i=0
+    j=j+1
+    f.write('\n')
+
+f.close()
+
+##########################################################Thermal conductivity output###############################
+print('Thermal conductivity is {}'.format(redao))
+print('\n')
+aaa=input('“Press enter to close the window, and the output file is in the input path”'+'\n')
